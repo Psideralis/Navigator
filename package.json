@@ -1,0 +1,29 @@
+{
+  "name": "navigator-android-local-conduccion",
+  "version": "1.0.2",
+  "private": true,
+  "scripts": {
+    "dev": "webpack serve --mode development --host 0.0.0.0",
+    "build": "webpack --mode production",
+    "android": "npx cap add android",
+    "sync": "npm run build && npx cap sync",
+    "check": "node --check src/main.js && node --check src/map-main.js && node --check src/navigation-utils.mjs && node --check src/local-store.mjs",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "dependencies": {
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/geolocation": "^7.0.0",
+    "maplibre-gl": "^5.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.0.0",
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/ios": "^7.0.0",
+    "webpack": "^5.0.0",
+    "webpack-cli": "^6.0.0",
+    "webpack-dev-server": "^5.0.0",
+    "html-webpack-plugin": "^5.0.0",
+    "css-loader": "^7.0.0",
+    "style-loader": "^4.0.0"
+  }
+}

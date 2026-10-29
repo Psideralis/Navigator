@@ -1,0 +1,10 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {seed,makeRequest,transition,overlaps,expandDates} from '../src/local-store.mjs';
+const later=(days)=>new Date(Date.now()+days*86400000).toISOString();
+const input=()=>({driverId:'d1',passengerName:'Persona de prueba',origin:'San José centro',destination:'Aeropuerto',start:later(5),duration:60,frequency:'once',count:1,preferences:'Silencio'});
+test('individual creates pending booking',()=>{const db=seed();const rows=makeRequest(db,input());assert.equal(rows.length,1);assert.equal(rows[0].status,'pending')});
+test('rejects trips before 72 hours',()=>{const db=seed();assert.throws(()=>makeRequest(db,{...input(),start:later(1)}),/72 horas/)});
+test('recurrent creates series',()=>{const db=seed();const rows=makeRequest(db,{...input(),frequency:'weekly',count:4});assert.equal(rows.length,4);assert.equal(db.series.length,1)});
+test('blocks conflicting requests',()=>{const db=seed();makeRequest(db,input());assert.throws(()=>makeRequest(db,input()),/Conflicto/)});
+test('accept and complete booking',()=>{const db=seed();const b=makeRequest(db,input())[0];transition(db,b.id,'accept','d1');transition(db,b.id,'start','d1');transition(db,b.id,'complete','d1');assert.equal(b.status,'completed')});
+test('buffer overlap',()=>assert.equal(overlaps({start:'2026-11-05T09:00:00Z',duration:60},{start:'2026-11-05T10:15:00Z',duration:60}),true));
+test('weekdays skip weekend',()=>{const dates=expandDates('2026-11-06T08:00:00Z','weekdays',3);assert.equal(dates.length,3);assert.equal(new Date(dates[1]).getUTCDay(),1)});
